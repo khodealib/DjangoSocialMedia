@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    "home.apps.HomeConfig",
+]
 
 THIRD_PARTY_APPS = [
     "django_bootstrap5",
