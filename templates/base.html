@@ -12,10 +12,14 @@
 				margin-bottom: 20px;
 				background-color: #e9ecef;
 			}
+
+			body {
+				background-color: #e9ecef;
+			}
 		</style>
 	</head>
 	<body>
-		{% include 'partials/navbar.html' %}
+		{% include 'inc/navbar.html' %}
 		<div class="jumbotron">
 			{% bootstrap_messages %}
 			{% block content %}{% endblock %}
