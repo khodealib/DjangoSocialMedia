@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 
 class UserRegistrationForm(forms.Form):
     username = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "John"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "John"}),
     )
     email = forms.EmailField(
         widget=forms.EmailInput(
@@ -14,13 +15,13 @@ class UserRegistrationForm(forms.Form):
     )
     password = forms.CharField(
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "your passwords"}
+            attrs={"class": "form-control", "placeholder": "password"}
         ),
     )
 
     confirm_password = forms.CharField(
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "your passwords"}
+            attrs={"class": "form-control", "placeholder": "confirm password"}
         ),
     )
 
@@ -45,3 +46,13 @@ class UserRegistrationForm(forms.Form):
             raise ValidationError("Password must be match.")
 
 
+class UserLoginForm(forms.Form):
+    username = forms.CharField(
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "John"}),
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "your password"}
+        ),
+    )
