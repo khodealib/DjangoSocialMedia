@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -13,6 +14,11 @@ class UserRegisterView(View):
     form_class = UserRegistrationForm
     template_name = "account/register.html"
     redirect_url = "home:index"
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        if request.user.is_authenticated:
+            return redirect(self.redirect_url)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request: HttpRequest) -> HttpResponse:
         form = self.form_class()
@@ -37,6 +43,11 @@ class UserLoginView(View):
     template_name = "account/login.html"
     redirect_url = "home:index"
 
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        if request.user.is_authenticated:
+            return redirect(self.redirect_url)
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request: HttpRequest) -> HttpResponse:
         form = self.form_class()
         return render(request, self.template_name, {"form": form})
@@ -53,7 +64,7 @@ class UserLoginView(View):
         return render(request, self.template_name, {"form": form})
 
 
-class UserLogoutView(View):
+class UserLogoutView(LoginRequiredMixin, View):
     redirect_url = "home:index"
 
     def get(self, request: HttpRequest) -> HttpResponse:
