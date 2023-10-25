@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
 LOCAL_APPS = [
     "home.apps.HomeConfig",
+    "account.apps.AccountConfig",
 ]
 
 THIRD_PARTY_APPS = [
