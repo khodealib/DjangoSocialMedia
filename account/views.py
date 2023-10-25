@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
 from account.forms import UserLoginForm, UserRegistrationForm
@@ -71,3 +71,11 @@ class UserLogoutView(LoginRequiredMixin, View):
         logout(request)
         messages.success(request, "You logged out successfully.")
         return redirect(self.redirect_url)
+
+
+class UserProfileView(LoginRequiredMixin, View):
+    template_name = "account/profile.html"
+
+    def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
+        user = get_object_or_404(User, pk=user_id)
+        return render(request, self.template_name, {"user": user})
