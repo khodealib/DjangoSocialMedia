@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -51,3 +51,12 @@ class UserLoginView(View):
                 return redirect(self.redirect_url)
             messages.warning(request, "Username or password is wrong.")
         return render(request, self.template_name, {"form": form})
+
+
+class UserLogoutView(View):
+    redirect_url = "home:index"
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        logout(request)
+        messages.success(request, "You logged out successfully.")
+        return redirect(self.redirect_url)
