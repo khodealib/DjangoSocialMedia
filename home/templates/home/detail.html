@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	{{ post.body|truncatewords:2 }}
+{% endblock %}
+
+{% block content %}
+	<p>{{ post.user.email }} - {{ post.updated|date:"Y M j" }}</p>
+	{{ post.body }}
+{% endblock %}
