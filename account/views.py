@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
 from account.forms import UserLoginForm, UserRegistrationForm
+from home.models import Post
 
 
 # Create your views here.
@@ -78,4 +79,6 @@ class UserProfileView(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
         user = get_object_or_404(User, pk=user_id)
-        return render(request, self.template_name, {"user": user})
+        posts = Post.objects.filter(user_id=user_id)
+        context = {"user": user, "posts": posts}
+        return render(request, self.template_name, context)
