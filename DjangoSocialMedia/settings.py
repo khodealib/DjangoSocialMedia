@@ -25,9 +25,12 @@ SECRET_KEY = "django-insecure-tszfqk+*fuc@615vp64%zuq)fg5r=z%7*@p_f57m25y(u!hs=w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
-
+if DEBUG:
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
 # Application definition
 
 INSTALLED_APPS = [

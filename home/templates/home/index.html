@@ -3,7 +3,7 @@
 {% block content %}
 	<div class="card">
 		{% for post in posts %}
-			<a href="{% url 'home:post_detail' post.pk post.slug %}" class="card-body">{{ post.body|truncatewords:5 }}</a>
+			<a href="{{ post.get_absolute_url }}" class="card-body">{{ post.body|truncatewords:5 }}</a>
 		{% endfor %}
 	</div>
 {% endblock %}
