@@ -5,6 +5,14 @@
 {% endblock %}
 
 {% block content %}
-	<p>{{ post.user.email }} - {{ post.updated|date:"Y M j" }}</p>
-	{{ post.body }}
+	{% if request.user.pk == post.user.pk %}
+		<a href="{% url 'home:post_delete' post.pk %}" class="btn btn-danger">Delete</a>
+		<a href="{% url 'home:post_update' post.pk %}" class="btn btn-info">Update</a>
+	{% endif %}
+
+	<p>
+		<a href="{% url 'account:user_profile' post.user.pk %}">{{ post.user }}</a> -
+		<span>{{ post.updated|date:"Y M j" }}</span>
+	</p>
+	<p>{{ post.body }}</p>
 {% endblock %}
