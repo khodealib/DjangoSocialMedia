@@ -20,7 +20,8 @@ class HomeView(View):
 class PostDetailView(View):
     template_name = "home/detail.html"
 
-    def get(self, request: HttpRequest, post_id: int, post_slug: str) -> HttpResponse:
+    def get(self, request: HttpRequest, post_id: int,
+            post_slug: str) -> HttpResponse:
         post = get_object_or_404(Post, pk=post_id, slug=post_slug)
         return render(request, self.template_name, {"post": post})
 
@@ -44,7 +45,7 @@ class PostUpdateView(LoginRequiredMixin, View):
     post_instance = None
 
     def setup(self, request: HttpRequest, *args, **kwargs):
-        self.post_instance = Post.objects.get(pk=kwargs.get("post_id"))
+        self.post_instance = get_object_or_404(Post, pk=kwargs.get("post_id"))
         return super().setup(request, *args, **kwargs)
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
