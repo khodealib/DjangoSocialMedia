@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 from django.views import View
 
 from account.forms import UserLoginForm, UserRegistrationForm
-from home.models import Post
+from account.models import Relation
 
 
 # Create your views here.
@@ -45,6 +45,11 @@ class UserLoginView(View):
     form_class = UserLoginForm
     template_name = "account/login.html"
     redirect_url = "home:index"
+    next = None
+
+    def setup(self, request: HttpRequest, *args, **kwargs):
+        self.next = request.GET.get("next")
+        return super().setup(request, *args, **kwargs)
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         if request.user.is_authenticated:
@@ -62,6 +67,8 @@ class UserLoginView(View):
             if user is not None:
                 login(request, user)
                 messages.success(request, "You logged in successfully.")
+                if self.next:
+                    return redirect(self.next)
                 return redirect(self.redirect_url)
             messages.warning(request, "Username or password is wrong.")
         return render(request, self.template_name, {"form": form})
@@ -80,9 +87,20 @@ class UserProfileView(LoginRequiredMixin, View):
     template_name = "account/profile.html"
 
     def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
+        is_following = False
         user = get_object_or_404(User, pk=user_id)
+        relation = Relation.objects.filter(
+            from_user=request.user,
+            to_user=user,
+        )
+        if relation.exists():
+            is_following = True
         posts = user.posts.all()
-        context = {"user": user, "posts": posts}
+        context = {
+            "user": user,
+            "posts": posts,
+            "is_following": is_following,
+        }
         return render(request, self.template_name, context)
 
 
@@ -103,3 +121,39 @@ class UserPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 class UserPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = "account/password_reset_complete.html"
+
+
+class UserFollowView(LoginRequiredMixin, View):
+    redirect_url = "account:user_profile"
+
+    def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
+        user = User.objects.get(pk=user_id)
+        relation = Relation.objects.filter(
+            from_user=request.user,
+            to_user=user,
+        )
+        if relation.exists():
+            messages.error(request, "You are already following this user.")
+        else:
+            Relation.objects.create(from_user=request.user, to_user=user)
+            messages.success(request, "You followed this user.")
+
+        return redirect(self.redirect_url, user.id)
+
+
+class UserUnFollowView(LoginRequiredMixin, View):
+    redirect_url = "account:user_profile"
+
+    def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
+        user = User.objects.get(pk=user_id)
+        relation = Relation.objects.filter(
+            from_user=request.user,
+            to_user=user,
+        )
+        if relation.exists():
+            relation.delete()
+            messages.success(request, "You unfollowed this user.")
+        else:
+            messages.error(request, "You are not following this user.")
+
+        return redirect(self.redirect_url, user.id)

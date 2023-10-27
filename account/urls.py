@@ -32,4 +32,10 @@ urlpatterns = [
         views.UserPasswordResetCompleteView.as_view(),
         name="user_password_reset_complete",
     ),
+    path("follow/<int:user_id>/", views.UserFollowView.as_view(), name="user_follow"),
+    path(
+        "unfollow/<int:user_id>/",
+        views.UserUnFollowView.as_view(),
+        name="user_unfollow",
+    ),
 ]

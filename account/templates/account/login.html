@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-	<form action="{% url 'account:user_login' %}" method="post"
+	<form action="{% url 'account:user_login' %}?next={{ request.GET.next }}" method="post"
 	      class="col-md-6" novalidate>
 		{% csrf_token %}
 		{{ form.as_p }}

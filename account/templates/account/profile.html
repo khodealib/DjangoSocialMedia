@@ -7,11 +7,24 @@
 {% block content %}
 	<h2 class="text-center">{{ user.username }}</h2>
 
-	{% if request.user.pk == user.pk %}
+	{% if request.user.id == user.id %}
 		<a href="{% url 'home:post_create' %}" class="btn btn-primary">
 			Create Post
 		</a>
 	{% endif %}
+
+	{% if request.user.id != user.id and not is_following %}
+		<a href="{% url 'account:user_follow' user.id %}"
+		   class="btn btn-primary">
+			Follow
+		</a>
+	{% elif request.user.id != user.id and  is_following %}
+		<a href="{% url 'account:user_unfollow' user.id %}"
+		   class="btn btn-primary">
+			UnFollow
+		</a>
+	{% endif %}
+
 	<div class="card">
 		{% for post in posts %}
 			<a href="{{ post.get_absolute_url }}" class="card-body">{{ post.body|truncatewords:5 }}</a>
