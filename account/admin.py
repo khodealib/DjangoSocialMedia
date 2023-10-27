@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from account.models import Relation
+
+
+@admin.register(Relation)
+class RelationAdmin(admin.ModelAdmin):
+    pass
