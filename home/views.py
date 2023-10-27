@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 from django.views import View
 
-from home.forms import PostUpdateForm
+from home.forms import PostCreateUpdateForm
 from home.models import Post
 
 
@@ -20,8 +20,7 @@ class HomeView(View):
 class PostDetailView(View):
     template_name = "home/detail.html"
 
-    def get(self, request: HttpRequest, post_id: int,
-            post_slug: str) -> HttpResponse:
+    def get(self, request: HttpRequest, post_id: int, post_slug: str) -> HttpResponse:
         post = get_object_or_404(Post, pk=post_id, slug=post_slug)
         return render(request, self.template_name, {"post": post})
 
@@ -41,7 +40,7 @@ class PostDeleteView(LoginRequiredMixin, View):
 
 
 class PostUpdateView(LoginRequiredMixin, View):
-    form_class = PostUpdateForm
+    form_class = PostCreateUpdateForm
     post_instance = None
 
     def setup(self, request: HttpRequest, *args, **kwargs):
@@ -65,7 +64,25 @@ class PostUpdateView(LoginRequiredMixin, View):
         form = self.form_class(request.POST, instance=post)
         if form.is_valid():
             new_post = form.save(commit=False)
-            new_post.slug = slugify(form.cleaned_data['body'][:30])
+            new_post.slug = slugify(form.cleaned_data["body"][:30])
             new_post.save()
             messages.success(request, "You updated this post")
             return redirect("home:post_detail", post.pk, post.slug)
+
+
+class PostCreateView(LoginRequiredMixin, View):
+    form_class = PostCreateUpdateForm
+
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        form = self.form_class()
+        return render(request, "home/create.html", {"form": form})
+
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            new_post = form.save(commit=False)
+            new_post.slug = slugify(form.cleaned_data["body"][:30])
+            new_post.user = request.user
+            new_post.save()
+            messages.success(request, "You created new post successfully.")
+            return redirect("home:post_detail", new_post.pk, new_post.slug)
