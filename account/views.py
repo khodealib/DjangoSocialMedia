@@ -81,7 +81,7 @@ class UserProfileView(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
         user = get_object_or_404(User, pk=user_id)
-        posts = Post.objects.filter(user=user)
+        posts = user.posts.all()
         context = {"user": user, "posts": posts}
         return render(request, self.template_name, context)
 
