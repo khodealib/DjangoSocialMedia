@@ -15,4 +15,33 @@
 		<span>{{ post.updated|date:"Y M j" }}</span>
 	</p>
 	<p>{{ post.body }}</p>
+	<hr>
+	{% if request.user.is_authenticated %}
+		<form action="" method="post" novalidate>
+			{% csrf_token %}
+			{{ form.as_p }}
+			<input type="submit" value="Send comment">
+		</form>
+	{% else %}
+		<p class="alert alert-danger">Only logged in users can be send comment.</p>
+	{% endif %}
+	<hr>
+	{% for comment in comments %}
+		<div class="card bg-dark text-white">
+			<p class="card-header">{{ comment.user }} | {{ comment.created|timesince }} ago</p>
+			<p class="card-body">{{ comment.body }}</p>
+
+			{% with comment.rcomments.all as replies %}
+				{% for reply in replies %}
+					<p class="bg-primary p-3 m-2">
+						{{ reply.user }} <br> {{ reply.body }}
+					</p>
+				{% endfor %}
+			{% endwith %}
+		</div><br>
+	{% empty %}
+		<p>No comment's yet!</p>
+	{% endfor %}
+
+
 {% endblock %}

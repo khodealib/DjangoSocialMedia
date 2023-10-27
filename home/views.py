@@ -1,11 +1,13 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views import View
 
-from home.forms import PostCreateUpdateForm
+from home.forms import CommentCreateForm, PostCreateUpdateForm
 from home.models import Post
 
 
@@ -18,11 +20,46 @@ class HomeView(View):
 
 
 class PostDetailView(View):
+    form_class = CommentCreateForm
     template_name = "home/detail.html"
+    post_instance = None
 
-    def get(self, request: HttpRequest, post_id: int, post_slug: str) -> HttpResponse:
-        post = get_object_or_404(Post, pk=post_id, slug=post_slug)
-        return render(request, self.template_name, {"post": post})
+    def setup(self, request, *args, **kwargs):
+        post_id = kwargs.get("post_id")
+        post_slug = kwargs.get("post_slug")
+        self.post_instance = get_object_or_404(
+            Post,
+            pk=post_id,
+            slug=post_slug,
+        )
+        return super().setup(request, *args, **kwargs)
+
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        comments = self.post_instance.pcomments.filter(is_reply=False)
+        return render(
+            request,
+            self.template_name,
+            {
+                "post": self.post_instance,
+                "comments": comments,
+                "form": self.form_class,
+            },
+        )
+
+    @method_decorator(login_required)
+    def post(self, request: HttpRequest, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = self.post_instance
+            new_comment.user = request.user
+            new_comment.save()
+            messages.success(request, "Your comment submitted successfully.")
+            return redirect(
+                "home:post_detail",
+                self.post_instance.id,
+                self.post_instance.slug,
+            )
 
 
 class PostDeleteView(LoginRequiredMixin, View):
