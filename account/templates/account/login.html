@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block title %}
-	Login User
+  Login User
 {% endblock %}
 
 {% block content %}
-	<form action="{% url 'account:user_login' %}?next={{ request.GET.next }}" method="post"
-	      class="col-md-6" novalidate>
-		{% csrf_token %}
-		{{ form.as_p }}
-		<input type="submit" value="Login">
-	</form>
+  <form action="{% url 'account:user_login' %}?next={{ request.GET.next }}" method="post"
+        class="col-md-6" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Login">
+  </form>
 {% endblock %}

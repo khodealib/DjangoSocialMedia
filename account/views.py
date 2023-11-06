@@ -35,7 +35,7 @@ class UserRegisterView(View):
                 email=form.cleaned_data["email"],
                 password=form.cleaned_data["password"],
             )
-            messages.success(request, "User registered successfully.")
+            messages.success(request, "User registered successfully.", "success")
             return redirect(self.redirect_url)
 
         return render(request, self.template_name, {"form": form})
@@ -66,11 +66,11 @@ class UserLoginView(View):
             user = authenticate(request, **form.cleaned_data)
             if user is not None:
                 login(request, user)
-                messages.success(request, "You logged in successfully.")
+                messages.success(request, "You logged in successfully.", "success")
                 if self.next:
                     return redirect(self.next)
                 return redirect(self.redirect_url)
-            messages.warning(request, "Username or password is wrong.")
+            messages.warning(request, "Username or password is wrong.", "warning")
         return render(request, self.template_name, {"form": form})
 
 
@@ -79,7 +79,7 @@ class UserLogoutView(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest) -> HttpResponse:
         logout(request)
-        messages.success(request, "You logged out successfully.")
+        messages.success(request, "You logged out successfully.", "success")
         return redirect(self.redirect_url)
 
 
@@ -133,7 +133,7 @@ class UserFollowView(LoginRequiredMixin, View):
             to_user=user,
         )
         if relation.exists():
-            messages.error(request, "You are already following this user.")
+            messages.error(request, "You are already following this user.", "danger")
         else:
             Relation.objects.create(from_user=request.user, to_user=user)
             messages.success(request, "You followed this user.")
@@ -152,8 +152,8 @@ class UserUnFollowView(LoginRequiredMixin, View):
         )
         if relation.exists():
             relation.delete()
-            messages.success(request, "You unfollowed this user.")
+            messages.success(request, "You unfollowed this user.", "success")
         else:
-            messages.error(request, "You are not following this user.")
+            messages.error(request, "You are not following this user.", "danger")
 
         return redirect(self.redirect_url, user.id)

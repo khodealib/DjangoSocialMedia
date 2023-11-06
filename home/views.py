@@ -54,7 +54,7 @@ class PostDetailView(View):
             new_comment.post = self.post_instance
             new_comment.user = request.user
             new_comment.save()
-            messages.success(request, "Your comment submitted successfully.")
+            messages.success(request, "Your comment submitted successfully.", "success")
             return redirect(
                 "home:post_detail",
                 self.post_instance.id,
@@ -69,9 +69,9 @@ class PostDeleteView(LoginRequiredMixin, View):
         post = get_object_or_404(Post, pk=post_id)
         if post.user.pk == request.user.pk:
             post.delete()
-            messages.success(request, "Post delete successfully.")
+            messages.success(request, "Post delete successfully.", "success")
         else:
-            messages.error(request, "You can't delete this post.")
+            messages.error(request, "You can't delete this post.", "danger")
 
         return redirect(self.redirect_url)
 
@@ -87,7 +87,7 @@ class PostUpdateView(LoginRequiredMixin, View):
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         post = self.post_instance
         if not post.user.pk == request.user.pk:
-            messages.error(request, "You can't update this post.")
+            messages.error(request, "You can't update this post.", "danger")
             return redirect("home:index")
         return super().dispatch(request, *args, **kwargs)
 
@@ -103,7 +103,7 @@ class PostUpdateView(LoginRequiredMixin, View):
             new_post = form.save(commit=False)
             new_post.slug = slugify(form.cleaned_data["body"][:30])
             new_post.save()
-            messages.success(request, "You updated this post")
+            messages.success(request, "You updated this post", "success")
             return redirect("home:post_detail", post.pk, post.slug)
 
 
@@ -121,5 +121,5 @@ class PostCreateView(LoginRequiredMixin, View):
             new_post.slug = slugify(form.cleaned_data["body"][:30])
             new_post.user = request.user
             new_post.save()
-            messages.success(request, "You created new post successfully.")
+            messages.success(request, "You created new post successfully.", "success")
             return redirect("home:post_detail", new_post.pk, new_post.slug)

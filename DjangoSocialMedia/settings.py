@@ -46,9 +46,7 @@ LOCAL_APPS = [
     "account.apps.AccountConfig",
 ]
 
-THIRD_PARTY_APPS = [
-    "django_bootstrap5",
-]
+THIRD_PARTY_APPS = []
 
 DEV_APPS = [
     "debug_toolbar",

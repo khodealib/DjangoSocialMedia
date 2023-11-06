@@ -1,2 +1,2 @@
-django-bootstrap5==23.3; python_version >= "3.7"
-django==4.2; python_version >= "3.8"
+Django==4.2
+django-debug-toolbar

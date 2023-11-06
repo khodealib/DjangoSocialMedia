@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block title %}
-	Register User
+  Register User
 {% endblock %}
 
 {% block content %}
-	<form action="{% url 'account:user_register' %}" method="post"
-	      class="col-md-6" novalidate>
-		{% csrf_token %}
-		{{ form.as_p }}
-		<input type="submit" value="Register">
-	</form>
+  <form action="{% url 'account:user_register' %}" method="post"
+        class="col-md-6" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Register">
+  </form>
 {% endblock %}

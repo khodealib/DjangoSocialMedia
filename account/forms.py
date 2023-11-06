@@ -38,6 +38,7 @@ class UserRegistrationForm(forms.Form):
         user = User.objects.filter(username=username).exists()
         if user:
             raise ValidationError("This username already exist.")
+        return username
 
     def clean(self):
         cleaned_data = super().clean()
