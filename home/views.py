@@ -7,16 +7,19 @@ from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views import View
 
-from home.forms import CommentCreateForm, PostCreateUpdateForm, CommentReplyForm
+from home.forms import CommentCreateForm, PostCreateUpdateForm, CommentReplyForm, PostSearchForm
 from home.models import Post, Comment, Vote
 
 
 class HomeView(View):
+    form_class = PostSearchForm
     template_name = "home/index.html"
 
     def get(self, request: HttpRequest) -> HttpResponse:
         posts = Post.objects.all()
-        return render(request, self.template_name, {"posts": posts})
+        if request.GET.get("search"):
+            posts = posts.filter(body__icontains=request.GET["search"])
+        return render(request, self.template_name, {"posts": posts, "form": self.form_class})
 
 
 class PostDetailView(View):
