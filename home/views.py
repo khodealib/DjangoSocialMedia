@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from django.views import View
 
 from home.forms import CommentCreateForm, PostCreateUpdateForm, CommentReplyForm
-from home.models import Post, Comment
+from home.models import Post, Comment, Vote
 
 
 class HomeView(View):
@@ -37,6 +37,10 @@ class PostDetailView(View):
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         comments = self.post_instance.pcomments.filter(is_reply=False)
+        can_like = False
+
+        if request.user.is_authenticated and self.post_instance.user_can_like(request.user):
+            can_like = True
         return render(
             request,
             self.template_name,
@@ -44,7 +48,8 @@ class PostDetailView(View):
                 "post": self.post_instance,
                 "comments": comments,
                 "form": self.form_class,
-                "form_reply": self.form_class_reply
+                "form_reply": self.form_class_reply,
+                "can_like": can_like
             },
         )
 
@@ -142,4 +147,17 @@ class PostAddReplyView(LoginRequiredMixin, View):
             reply.reply = comment
             reply.save()
             messages.success(request, "Your reply saved successfully", "success")
+        return redirect("home:post_detail", post.id, post.slug)
+
+
+class PostLikeView(LoginRequiredMixin, View):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        like = Vote.objects.filter(post=post, user=request.user)
+        if like.exists():
+            messages.error(request, "You have already liked this post.", "danger")
+        else:
+            Vote.objects.create(post=post, user=request.user)
+            messages.success(request, "You liked this post.", "success")
+
         return redirect("home:post_detail", post.id, post.slug)

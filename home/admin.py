@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from home.models import Comment, Post
+from home.models import Comment, Post, Vote
 
 
 @admin.register(Post)
@@ -15,3 +15,8 @@ class PostAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ("user", "post", "created", "is_reply")
     list_filter = ("created", "is_reply")
+
+
+@admin.register(Vote)
+class VoteAdmin(admin.ModelAdmin):
+    pass

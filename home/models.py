@@ -20,6 +20,14 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse("home:post_detail", args=(self.pk, self.slug))
 
+    def likes_count(self):
+        return self.pvotes.count()
+
+    def user_can_like(self, user: User):
+        user_like = user.uvotes.filter(post=self)
+        if user_like.exists():
+            return False
+        return True
 
 class Comment(models.Model):
     user = models.ForeignKey(
