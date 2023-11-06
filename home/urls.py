@@ -21,4 +21,5 @@ urlpatterns = [
         name="post_update",
     ),
     path("post/create/", views.PostCreateView.as_view(), name="post_create"),
+    path("post/<int:post_id>/<int:comment_id>/reply/", views.PostAddReplyView.as_view(), name="post_add_reply")
 ]
