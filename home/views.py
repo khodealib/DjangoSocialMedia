@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.text import slugify
@@ -15,7 +14,7 @@ class HomeView(View):
     form_class = PostSearchForm
     template_name = "home/index.html"
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self, request):
         posts = Post.objects.all()
         if request.GET.get("search"):
             posts = posts.filter(body__icontains=request.GET["search"])
@@ -38,7 +37,7 @@ class PostDetailView(View):
         )
         return super().setup(request, *args, **kwargs)
 
-    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def get(self, request, *args, **kwargs):
         comments = self.post_instance.pcomments.filter(is_reply=False)
         can_like = False
 
@@ -57,7 +56,7 @@ class PostDetailView(View):
         )
 
     @method_decorator(login_required)
-    def post(self, request: HttpRequest, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
             new_comment = form.save(commit=False)
@@ -75,7 +74,7 @@ class PostDetailView(View):
 class PostDeleteView(LoginRequiredMixin, View):
     redirect_url = "home:index"
 
-    def get(self, request: HttpRequest, post_id) -> HttpResponse:
+    def get(self, request, post_id):
         post = get_object_or_404(Post, pk=post_id)
         if post.user.pk == request.user.pk:
             post.delete()
@@ -90,23 +89,23 @@ class PostUpdateView(LoginRequiredMixin, View):
     form_class = PostCreateUpdateForm
     post_instance = None
 
-    def setup(self, request: HttpRequest, *args, **kwargs):
+    def setup(self, request, *args, **kwargs):
         self.post_instance = get_object_or_404(Post, pk=kwargs.get("post_id"))
         return super().setup(request, *args, **kwargs)
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         post = self.post_instance
         if not post.user.pk == request.user.pk:
             messages.error(request, "You can't update this post.", "danger")
             return redirect("home:index")
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def get(self, request, *args, **kwargs):
         post = self.post_instance
         form = self.form_class(instance=post)
         return render(request, "home/update.html", {"form": form})
 
-    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def post(self, request, *args, **kwargs):
         post = self.post_instance
         form = self.form_class(request.POST, instance=post)
         if form.is_valid():
@@ -120,11 +119,11 @@ class PostUpdateView(LoginRequiredMixin, View):
 class PostCreateView(LoginRequiredMixin, View):
     form_class = PostCreateUpdateForm
 
-    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def get(self, request, *args, **kwargs):
         form = self.form_class()
         return render(request, "home/create.html", {"form": form})
 
-    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
             new_post = form.save(commit=False)
@@ -154,6 +153,8 @@ class PostAddReplyView(LoginRequiredMixin, View):
 
 
 class PostLikeView(LoginRequiredMixin, View):
+    redirect_url = "home:post_detail"
+
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         like = Vote.objects.filter(post=post, user=request.user)
@@ -163,4 +164,4 @@ class PostLikeView(LoginRequiredMixin, View):
             Vote.objects.create(post=post, user=request.user)
             messages.success(request, "You liked this post.", "success")
 
-        return redirect("home:post_detail", post.id, post.slug)
+        return redirect(self.redirect_url, post.id, post.slug)

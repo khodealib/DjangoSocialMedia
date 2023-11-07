@@ -18,16 +18,16 @@ class UserRegisterView(View):
     template_name = "account/register.html"
     redirect_url = "home:index"
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect(self.redirect_url)
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self, request):
         form = self.form_class()
         return render(request, self.template_name, {"form": form})
 
-    def post(self, request: HttpRequest) -> HttpResponse:
+    def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
             User.objects.create_user(
@@ -47,20 +47,20 @@ class UserLoginView(View):
     redirect_url = "home:index"
     next = None
 
-    def setup(self, request: HttpRequest, *args, **kwargs):
+    def setup(self, request, *args, **kwargs):
         self.next = request.GET.get("next")
         return super().setup(request, *args, **kwargs)
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect(self.redirect_url)
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self, request):
         form = self.form_class()
         return render(request, self.template_name, {"form": form})
 
-    def post(self, request: HttpRequest) -> HttpResponse:
+    def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = authenticate(request, **form.cleaned_data)
@@ -77,7 +77,7 @@ class UserLoginView(View):
 class UserLogoutView(LoginRequiredMixin, View):
     redirect_url = "home:index"
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self, request):
         logout(request)
         messages.success(request, "You logged out successfully.", "success")
         return redirect(self.redirect_url)
@@ -86,7 +86,7 @@ class UserLogoutView(LoginRequiredMixin, View):
 class UserProfileView(LoginRequiredMixin, View):
     template_name = "account/profile.html"
 
-    def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
+    def get(self, request, user_id: int):
         is_following = False
         user = get_object_or_404(User, pk=user_id)
         relation = Relation.objects.filter(
@@ -126,7 +126,7 @@ class UserPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 class UserFollowView(LoginRequiredMixin, View):
     redirect_url = "account:user_profile"
 
-    def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
+    def get(self, request, user_id: int):
         user = User.objects.get(pk=user_id)
         relation = Relation.objects.filter(
             from_user=request.user,
@@ -144,7 +144,7 @@ class UserFollowView(LoginRequiredMixin, View):
 class UserUnFollowView(LoginRequiredMixin, View):
     redirect_url = "account:user_profile"
 
-    def get(self, request: HttpRequest, user_id: int) -> HttpResponse:
+    def get(self, request, user_id: int):
         user = User.objects.get(pk=user_id)
         relation = Relation.objects.filter(
             from_user=request.user,
