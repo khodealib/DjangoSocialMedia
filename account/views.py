@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
-from account.forms import UserLoginForm, UserRegistrationForm
+from account.forms import UserLoginForm, UserRegistrationForm, EditUserForm
 from account.models import Relation
 
 
@@ -156,3 +156,22 @@ class UserUnFollowView(LoginRequiredMixin, View):
             messages.error(request, "You are not following this user.", "danger")
 
         return redirect(self.redirect_url, user.id)
+
+
+class EditUserView(LoginRequiredMixin, View):
+    form_class = EditUserForm
+
+    def get(self, request):
+        form = self.form_class(instance=request.user.profile, initial={"email": request.user.email})
+        return render(request, "account/edit_profile.html", {"form": form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            user = request.user
+            user.email = form.cleaned_data["email"]
+            user.save()
+            messages.success(request, "Profile edited successfully", "success")
+
+        return redirect("account:user_profile", request.user.id)

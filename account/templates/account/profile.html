@@ -11,6 +11,7 @@
     <a href="{% url 'home:post_create' %}" class="btn btn-primary">
       Create Post
     </a>
+    <a href="{% url 'account:user_edit' %}" class="btn btn-info"></a>
   {% endif %}
 
   {% if request.user.id != user.id and not is_following %}
